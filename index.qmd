@@ -1,0 +1,769 @@
+```{r}
+#| label: setup
+#| include: false
+
+library(here)
+
+source(here("R", "_setup.R"))
+```
+
+<!-- badges: start -->
+[![Project Status: Active – The project has reached a stable, usable state and is being actively developed.](https://www.repostatus.org/badges/latest/active.svg)](https://www.repostatus.org/#active)
+[![License: GPLv3](https://img.shields.io/badge/license-GPLv3-bd0000.svg)](https://www.gnu.org/licenses/gpl-3.0)
+[![License: CC BY-NC-SA 4.0](https://img.shields.io/badge/license-CC_BY--NC--SA_4.0-lightgrey.svg)](https://creativecommons.org/licenses/by-nc-sa/4.0/)
+<!-- badges: end -->
+
+## Overview
+
+This report provides a reproducible pipeline for calculating the Maximal Coverage [Location-Allocation](https://en.wikipedia.org/wiki/Location-allocation) to identify optimal locations for one or more facilities, specifically targeting food establishments, to maximize accessibility and coverage within the defined area.
+
+For instructions on how to run the pipeline, see the repository [README](https://github.com/cem-usp/locais-nova-location-allocation/blob/main/README.md).
+
+## Problem
+
+<!-- Add a brief description of the problem being addressed. -->
+
+## Data Availability
+
+<!-- Add OSF badge. -->
+
+The processed data are available in [`csv`](https://en.wikipedia.org/wiki/Comma-separated_values), [`rds`](https://rdrr.io/r/base/readRDS.html) and [`parquet`](https://en.wikipedia.org/wiki/Apache_Parquet) formats through dedicated repositories on the Open Science Framework ([OSF](https://osf.io/)). A metadata file is included alongside the validated datasets.
+
+Only authorized personnel can access the processed files. They are protected with [RSA](https://en.wikipedia.org/wiki/RSA_cryptosystem) 4096-bit encryption ([OpenSSL](https://www.openssl.org/)) and a 32-byte password to ensure data security.
+
+## Methods
+
+### Source of Data
+
+The data used in this report come from the following sources:
+
+- Brazilian Federal Revenue Service ([RFB](https://www.gov.br/receitafederal/))
+  - Data on legal entities from the National Register of Legal Entities ([CNPJ](https://en.wikipedia.org/wiki/CNPJ)) [database](https://dados.gov.br/dados/conjuntos-dados/cadastro-nacional-da-pessoa-juridica---cnpj), used for company identification [@brasil].
+  - Data on [Brazilian agencies and municipalities](https://dados.gov.br/dados/conjuntos-dados/tabela-de-rgos-e-municpios) (_Tabela de Órgãos e Municípios_, TOM) [@brasila].
+- Brazilian Institute of Geography and Statistics ([IBGE](https://www.ibge.gov.br/))
+  - Municipality data via the [`geobr`](https://ipeagit.github.io/geobr/) R package [@pereirab].
+  - Municipality and census tract shapes via the [`geobr`](https://ipeagit.github.io/geobr/) R package [@pereirab].
+  - Census tract population data via the [`censobr`](https://ipeagit.github.io/censobr/) R package [@pereirab].
+  - Open spatial datasets of Brazilian addresses from the National Address Register for Statistical Purposes ([CNEFE](https://www.ibge.gov.br/estatisticas/sociais/populacao/38734-cadastro-nacional-de-enderecos-para-fins-estatisticos.html)), used for geocoding via the [`geocodebr`](https://ipeagit.github.io/geocodebr/) R package [@pereiraa].
+- Center for Metropolitan Studies ([CEM](https://centrodametropole.fflch.usp.br/))
+  - Lookup table providing the classification linking the establishments [CNAEs](https://www.gov.br/receitafederal/pt-br/assuntos/orientacao-tributaria/cadastros/cnpj/classificacao-nacional-de-atividades-economicas-2013-cnae) (National Classification of Economic Activities) codes to the [Locais-Nova](https://doi.org/10.1590/S2237-96222025v34.20240361.en) groups (Fernandes & Giannotti, 2025). This data will remain private until further notice.
+- Malaria Atlas Project ([MAP](https://malariaatlas.org/))
+  - Data on [spatial friction](https://en.wikipedia.org/wiki/Friction_of_distance) based on the *Global Walking Only Friction Surface* dataset [@map2019a], used to calculate travel times.
+- OpenStreetMap ([OSM](https://www.openstreetmap.org/))
+  - Data on [road and footpaths](https://wiki.openstreetmap.org/wiki/Map_features#Highway) [@openstreetmap], used to calculate travel times.
+
+The dataset related to the Brazilian Federal Revenue Service ([RFB](https://www.gov.br/receitafederal/)) used in this report was processed by Vartanian et al. (-@vartanian2025z) and has its own dedicated pipeline, which can be accessed at: <https://cem-usp.github.io/locais-nova-rfb-geocoding/>.
+
+### Data Munging
+
+The data munging follow the data science workflow outlined by @wickham2023e, as illustrated in [@fig-wickham-at-al-2023-figure-1]. All processes were made using the [Quarto](https://quarto.org/) publishing system [@allaire], the [R](https://www.r-project.org/) programming language [@rcoreteama] and several R packages.
+
+For data manipulation and workflow, priority was given to packages from the [tidyverse](https://www.tidyverse.org/), [rOpenSci](https://ropensci.org/) and [r-spatial](https://r-spatial.org/) ecosystems, as well as other packages adhering to the tidy tools manifesto [@wickham2023c].
+
+::: {#fig-wickham-at-al-2023-figure-1}
+![](images/wickham-at-al-2023-figure-1.png){width=75%}
+
+[Source: Reproduced from @wickham2023e.]{.legend}
+
+Data science workflow created by Wickham, Çetinkaya-Runde, and Grolemund.
+:::
+
+### Code Style
+
+The Tidyverse [code style guide](https://style.tidyverse.org/) [@wickhamb] and [design principles](https://design.tidyverse.org/) [@wickhamc] were followed to ensure consistency and enhance readability.
+
+### Reproducibility
+
+The pipeline is fully reproducible and can be run again at any time. To ensure consistent results, the [`renv`](https://rstudio.github.io/renv/) package [@usheya] is used to manage and restore the R environment. See the [README](https://github.com/cem-usp/locais-nova-location-allocation/blob/main/README.md) file in the code repository to learn how to run it.
+
+## Set the Environment
+
+::: {.callout-note}
+This section sets up the R environment needed for the workflow.
+:::
+
+### Load Packages
+
+```{r}
+#| label: Set the Environment
+#| code-fold: false
+#| output: false
+
+library(askpass)
+library(arrow)
+library(brandr)
+library(beepr)
+library(censobr)
+library(dplyr)
+library(fs)
+library(ggplot2)
+library(geobr)
+library(here)
+library(htmltools)
+# install.packages("remotes")
+# remotes::install_github("danielvartan/locationallocation")
+library(locationallocation)
+# remotes::install_github("danielvartan/lockr")
+library(lockr) # github.com/danielvartan/lockr
+library(magrittr)
+# remotes::install_github("danielvartan/orbis")
+library(orbis) # github.com/danielvartan/orbis
+library(osfr)
+library(raster)
+library(readr)
+library(sf)
+library(stars)
+library(stringr)
+library(tidyr)
+```
+
+### Set Keys
+
+::: {.callout-note}
+See the [Data Availability](#data-availability) section for more information.
+:::
+
+```{r}
+#| eval: false
+#| output: false
+
+osf_auth(Sys.getenv("OSF_PAT")) # askpass())
+```
+
+```{r}
+public_key <- here("_ssh", "id_rsa.pub")
+```
+
+```{r}
+private_key <- here("_ssh", "id_rsa")
+```
+
+```{r}
+password <- Sys.getenv("ACESSOSAN_PASSWORD") # askpass()
+```
+
+### Set Data Directory
+
+```{r}
+data_dir <- here("data")
+```
+
+```{r}
+if (!dir_exists(data_dir)) dir_create(data_dir, recurse = TRUE)
+```
+
+### Set Initial Variables
+
+```{r}
+set.seed(2025)
+```
+
+::: {.callout-note}
+The `year` variable is related to the year of the [RFB](https://www.gov.br/receitafederal/) dataset.
+:::
+
+```{r}
+year <- 2025
+```
+
+::: {.callout-note}
+This pipeline utilizes the Locais-Nova scale groups [@silva2025] to classify food establishments. The `G0` group is a distinct subset comprising establishments from the `G1-G2` group that are not simultaneously classified under `G3` or `G4`.
+:::
+
+```{r}
+locais_nova_group <- "G0" # G1-G2, G3, G4
+```
+
+::: {.callout-note}
+The `objective_minutes` variable defines the maximum travel time (in minutes) for coverage analysis.
+:::
+
+```{r}
+objective_minutes <- 15
+```
+
+::: {.callout-note}
+Select only **one** municipality at a time by uncommenting the corresponding IBGE code.
+:::
+
+```{r}
+municipality <- c( # IBGE Codes
+  # 1721000 # Palmas (2.227,329 km²)
+  2507507 # João Pessoa (210,044 km²)
+  # 3106200 # Belo Horizonte (331,354 km²)
+  # 3550308 # São Paulo (1.521,202 km²)
+  # 4314902 # Porto Alegre (495,977 km²)
+  # 5208707 # Goiânia (729,296 km²)
+  # 5300108 # Brasília (5.760,783 km²)
+)
+```
+
+## Download RFB Data
+
+### Download File
+
+```{r}
+#| label: Download RFB Data
+
+osf_raw_data_id <- "2x6jb"
+```
+
+```{r}
+osf_raw_data_files <-
+  osf_raw_data_id |>
+  osf_retrieve_node() |>
+  osf_ls_files(
+    type = "file",
+    pattern = "2025-01.rds.lockr",
+    n_max = Inf
+  )
+
+osf_raw_data_files
+```
+
+```{r}
+#| eval: false
+
+rfb_file <-
+  osf_raw_data_files |>
+  osf_download(path = data_dir, conflicts = "overwrite") |>
+  extract2("local_path")
+```
+
+### Unlock File
+
+```{r}
+#| eval: false
+#| output: false
+
+rfb_file |>
+  unlock_file(
+    private_key = private_key,
+    suffix = ".lockr",
+    remove_file = TRUE,
+    password = password
+  )
+```
+
+## Download and Import Municipality Shape
+
+```{r}
+#| label: Download and Import Municipality Shape
+#| output: false
+
+shape <-
+  municipality |>
+  read_municipality(
+    year = closest_geobr_year(year, verbose = FALSE),
+    showProgress = FALSE
+  ) |>
+  dplyr::select(code_muni, geom) |>
+  rename(municipality_code = code_muni, geometry = geom)
+```
+
+```{r}
+shape
+```
+
+## Download and Import Census Tract Population Data
+
+```{r}
+#| label: Download and Import Census Tract Population Data
+#| eval: false
+#| include: false
+
+data_dictionary(
+  year = 2022, # Last available year
+  dataset = "tracts"
+)
+```
+
+```{r}
+census_population_data <-
+  read_tracts(
+    year = 2022, # Last available year
+    dataset = "Basico",
+    as_data_frame = FALSE,
+    showProgress = TRUE,
+    cache = TRUE,
+    verbose = TRUE
+  )
+```
+
+```{r}
+census_population_data |> glimpse()
+```
+
+## Download and Import Census Tract Shape Data
+
+```{r}
+#| label: Download and Import Census Tract Shape Data
+
+census_tract_data <-
+  read_census_tract(
+    code_tract = municipality,
+    year = 2022, # Last available year
+    simplified = TRUE,
+    showProgress = TRUE,
+    cache = TRUE
+  )
+```
+
+```{r}
+census_tract_data |> glimpse()
+```
+
+## Filter and Join Census Data
+
+```{r}
+census_data <-
+  census_population_data |>
+  filter(code_muni == .env$municipality) |>
+  dplyr::select(code_tract, V0001) |>
+  rename(population = V0001) |>
+  mutate(code_tract = as.numeric(code_tract)) |>
+  collect() |>
+  left_join(census_tract_data, by = "code_tract") |>
+  rename(tract_code = code_tract) |>
+  dplyr::select(tract_code, population, geom) |>
+  st_as_sf()
+```
+
+```{r}
+census_data |> glimpse()
+```
+
+## Import Data
+
+```{r}
+#| label: Import Data
+
+data <-
+  here(data_dir, "2025-01.rds") |>
+  read_rds()
+```
+
+## Filter Data
+
+```{r}
+data <-
+  data |>
+  filter(
+    municipality_code == .env$municipality,
+    geocodebr_precision %in% c("numero", "numero_aproximado")
+  ) |>
+  dplyr::select(
+    cnpj,
+    longitude,
+    latitude,
+    locais_nova_g0,
+    locais_nova_g1_g2,
+    locais_nova_g3,
+    locais_nova_g4
+  )
+```
+
+## Transform Data
+
+```{r}
+data <-
+  data |>
+  st_as_sf(coords = c("longitude", "latitude"), crs = st_crs(shape)) |>
+  pivot_longer(
+    cols = starts_with("locais_nova_"),
+    names_to = "group",
+    values_to = "value"
+  ) |>
+  filter(value == TRUE) |>
+  mutate(
+    group =
+      group |>
+      str_remove("locais_nova_") |>
+      str_to_upper() |>
+      str_replace("_", "-")
+  ) |>
+  st_join(shape, join = st_within, left = FALSE) |>
+  dplyr::select(cnpj, group, geometry)
+```
+
+## Exploratory Analysis
+
+### Glimpse Data
+
+```{r}
+data |> glimpse()
+```
+
+### Plot Establishments
+
+::: {.callout-note}
+This plot illustrates the distribution of food establishments categorized by Locais-Nova scale groups [@silva2025]. Note that an establishment may belong to multiple groups.
+:::
+
+```{r}
+ggplot() +
+  geom_sf(
+    data = shape,
+    fill = "gray90",
+    color = "black"
+  ) +
+  geom_sf(
+    data = data,
+    mapping = aes(color = group),
+    size = 0.01
+  ) +
+  facet_wrap(~ group, ncol = 4) +
+  coord_sf(crs = 4326) +
+  scale_color_brand_d() +
+  scale_x_continuous(labels = NULL, breaks = NULL) +
+  scale_y_continuous(labels = NULL, breaks = NULL) +
+  theme(legend.position = "none") +
+  labs(
+    x = NULL,
+    y = NULL,
+    color = NULL
+  )
+```
+
+### Plot Tract Population
+
+::: {.callout-note}
+This plot illustrates the population distribution across census tracts within the selected municipality.
+:::
+
+```{r}
+ggplot() +
+  geom_sf(
+    data = shape,
+    fill = "gray90",
+    color = "black"
+  ) +
+  geom_sf(
+    data = census_data,
+    mapping = aes(fill = population),
+    color = NA
+  ) +
+  scale_fill_viridis_c(option = "plasma") +
+  coord_sf(crs = 4326) +
+  theme(legend.position = "right") +
+  labs(
+    x = NULL,
+    y = NULL,
+    fill = "Population"
+  )
+```
+
+## Compute Maximal Coverage Location-Allocation
+
+::: {.callout-warning}
+This process may require substantial computational resources, depending on the area's size and the number of establishments analyzed. Ensure your system has adequate capacity before proceeding.
+:::
+
+### Filter Locais-Nova Group
+
+```{r}
+#| label: Compute Maximal Coverage Location-Allocation
+
+allocation_data <-
+  data |>
+  filter(group == "G0") |>
+  st_transform(st_crs("WGS84"))
+```
+
+### Normalize Municipality Shape CRS
+
+```{r}
+allocation_shape <-
+  shape |>
+  st_transform(st_crs("WGS84"))
+```
+
+### Plot Food Establishments
+
+::: {.callout-note}
+This plot illustrates the spatial distribution of food establishments within the selected Locais-Nova scale group.
+:::
+
+```{r}
+ggplot() +
+  geom_sf(
+    data = shape,
+    fill = "gray90",
+    color = "black"
+  ) +
+  geom_sf(
+    data = data,
+    color = get_brand_color("blue"),
+    size = 0.01
+  ) +
+  coord_sf(crs = "WGS84") +
+  scale_color_brand_d() +
+  theme(legend.position = "none") +
+  labs(x = NULL, y = NULL)
+```
+
+### Compute Travel Time
+
+```{r}
+#| label: Compute Travel Time
+#| output: false
+
+travel_time_data <-
+  allocation_data |>
+  traveltime(
+    bb_area = allocation_shape,
+    dowscaling_model_type = "lm",
+    mode = "walk",
+    res_output = 100
+  )
+```
+
+### Plot Travel Time
+
+::: {.callout-note}
+This plot illustrates walking travel times from food establishments within the selected Locais-Nova scale group, considering the spatial friction of the area. Contour lines represent travel times up to the specified objective minutes.
+:::
+
+```{r}
+#| label: Travel Time Plot
+
+travel_time_data |>
+  traveltime_plot(
+    bb_area = allocation_shape,
+    facilities = allocation_data,
+    contour_traveltime = objective_minutes
+  )
+```
+
+### Rasterize Population Data
+
+```{r}
+census_raster_data <-
+  census_data |>
+  dplyr::select(-tract_code) |>
+  st_transform(st_crs("WGS84")) |>
+  st_rasterize() |>
+  as("Raster")
+```
+
+### Compute Travel Time Stats
+
+::: {.callout-note}
+This plot illustrates the cumulative population coverage achieved within the specified travel time intervals from food establishments in the selected Locais-Nova scale group, highlighting accessibility patterns and potential gaps in coverage.
+:::
+
+```{r}
+#| label: Travel Time Stats
+
+travel_time_stats <-
+  travel_time_data |>
+  traveltime_stats(
+    demand = census_raster_data,
+    breaks = c(5, 10, 15, 30),
+    objectiveminutes = objective_minutes
+  )
+```
+
+### Compute Location-Allocation (Continuous Approach)
+
+```{r}
+#| label: Compute Location-Allocation (Continuous Approach)
+#| warning: false
+
+allocation <-
+  census_raster_data |>
+  allocation(
+    bb_area = shape,
+    facilities = allocation_data,
+    traveltime = travel_time_data,
+    weights = NULL,
+    objectiveminutes = objective_minutes,
+    objectiveshare = 0.95,
+    heur = "max",
+    approach = "norm",
+    exp_demand = 1,
+    exp_weights = 1
+  )
+```
+
+### Plot Location-Allocation (Continuous Approach)
+
+::: {.callout-note}
+This plot illustrates the amount and optimal locations for food establishments within the selected Locais-Nova scale group, considering the objective travel time and population coverage.
+:::
+
+```{r}
+#| warning: false
+
+allocation |> allocation_plot(bb_area = shape)
+```
+
+### Compute Location-Allocation (Discrete Approach)
+
+```{r}
+#| eval: false
+#| label: Compute Location-Allocation (Discrete Approach)
+#| warning: false
+
+allocation <-
+  census_raster_data |>
+  allocation_discrete(
+    bb_area = shape,
+    candidate = shape, # |> st_sample(20),
+    facilities = allocation_data,
+    n_fac = 30,
+    n_samples = 1000,
+    traveltime = traveltime,
+    weights = NULL,
+    objectiveminutes = objective_minutes,
+    objectiveshare = 0.95,
+    approach = "norm",
+    exp_demand = 1,
+    exp_weights = 1,
+    par = TRUE
+  )
+```
+
+### Plot Location-Allocation (Discrete Approach)
+
+::: {.callout-note}
+This plot illustrates the amount and optimal locations for food establishments within the selected Locais-Nova scale group, considering the amount of facilities, objective travel time, and population coverage.
+:::
+
+```{r}
+#| eval: false
+#| warning: false
+
+allocation |> allocation_plot_discrete(bb_area = shape)
+```
+
+## Citation
+
+::: {.callout-important}
+When using this data, you must also cite the original data sources.
+:::
+
+To cite this work, please use the following format:
+
+Vartanian, D., Silva, L. G., Fernandes, C. N., & Giannotti, M. A. (2025). *A reproducible pipeline for maximal coverage location-allocation of food establishments in Brazil using the Locais-Nova scale* \[Computer software\]. Center for Metropolitan Studies of the University of São Paulo. <https://cem-usp.github.io/locais-nova-location-allocation>
+
+A BibLaTeX entry for LaTeX users is:
+
+```latex
+@software{silva2025,
+  title = {A reproducible pipeline for maximal coverage location-allocation of food establishments in Brazil using the Locais-Nova scale},
+  author = {{Daniel Vartanian} and {Letícia Gonçalves Silva} and {Camila Nastari Fernandes} and {Mariana Abrantes Giannotti}},
+  year = {2025},
+  address = {São Paulo},
+  institution = {Center for Metropolitan Studies of the University of São Paulo},
+  langid = {en},
+  url = {https://cem-usp.github.io/locais-nova-location-allocation}
+}
+```
+
+## License
+
+::: {style="text-align: left;"}
+[![License: GPLv3](https://img.shields.io/badge/license-GPLv3-bd0000.svg)](https://www.gnu.org/licenses/gpl-3.0)
+[![License: CC BY-NC-SA 4.0](https://img.shields.io/badge/license-CC_BY--NC--SA_4.0-lightgrey.svg)](https://creativecommons.org/licenses/by-nc-sa/4.0/)
+:::
+
+::: {.callout-important}
+The original data sources may be subject to their own licensing terms and conditions.
+:::
+
+The code in this repository is licensed under the [GNU General Public License Version 3](https://www.gnu.org/licenses/gpl-3.0), while the report is available under the [Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International](https://creativecommons.org/licenses/by-nc-sa/4.0/).
+
+```
+Copyright (C) 2025 Center for Metropolitan Studies
+
+The code in this report is free software: you can redistribute it and/or
+modify it under the terms of the GNU General Public License as published by the
+Free Software Foundation, either version 3 of the License, or (at your option)
+any later version.
+
+This program is distributed in the hope that it will be useful, but WITHOUT ANY
+WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+PARTICULAR PURPOSE. See the GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License along with
+this program. If not, see <https://www.gnu.org/licenses/>.
+```
+
+## Acknowledgments
+
+```{r, results='asis'}
+#| eval: true
+#| echo: false
+
+blocks <- list(
+  list(
+    logo_link = "https://doi.org/10.17605/OSF.IO/ZE6WT",
+    logo_src = "images/acessosan-logo.svg",
+    logo_alt = "AcessoSAN Logo",
+    logo_width = 140,
+    text = 'This work is part of a research project by the Polytechnic School (<a href="https://www.poli.usp.br/">Poli</a>) of the University of São Paulo (<a href="https://usp.br/">USP</a>), in partnership with the Secretariat for Food and Nutrition Security (<a href="https://www.gov.br/mds/pt-br/orgaos/SESAN">SESAN</a>) of the Ministry of Social Development, Family, and the Fight Against Hunger (<a href="https://www.gov.br/mds/">MDS</a>), titled: <em>AcessoSAN: Mapping Food Access to Support Public Policies on Food and Nutrition Security and Hunger Reduction in Brazilian Cities</em>.'
+  ),
+  list(
+    logo_link = "https://centrodametropole.fflch.usp.br",
+    logo_src = "images/cem-icon.svg",
+    logo_alt = "CEM Logo",
+    logo_width = 190,
+    text = 'This work was developed with support from the Center for Metropolitan Studies (<a href="https://centrodametropole.fflch.usp.br">CEM</a>) based at the School of Philosophy, Letters and Human Sciences (<a href="https://www.fflch.usp.br/">FFLCH</a>) of the University of São Paulo (<a href="https://usp.br">USP</a>) and at the Brazilian Center for Analysis and Planning (<a href="https://cebrap.org.br/">CEBRAP</a>).'
+  ),
+  list(
+    logo_link = "https://fapesp.br/",
+    logo_src = "images/fapesp-logo.svg",
+    logo_alt = "FAPESP Logo",
+    logo_width = 160,
+    text = 'This study was financed, in part, by the São Paulo Research Foundation (<a href="https://fapesp.br/">FAPESP</a>), Brazil. Process Number <a href="https://bv.fapesp.br/en/bolsas/231507/geospatial-data-science-applied-to-food-policies/">2025/17879-2</a>.'
+  )
+)
+
+blocks |>
+  lapply(
+    function(x) {
+      div(
+        style = paste0(
+          "display: flex; ",
+          "align-items: flex-start; ",
+          "margin-bottom: 2em;"
+        ),
+        div(
+          style = paste0(
+            "flex: 0 0 30%; ",
+            "display: flex; ",
+            "justify-content: center; ",
+            "margin: auto 0;"
+          ),
+          tags$a(
+            href = x$logo_link,
+            tags$img(
+              src = x$logo_src,
+              alt = x$logo_alt,
+              style = paste0(
+                "max-width: ", x$logo_width, "px; ",
+                "width: 100%; ",
+                "height: auto;"
+              )
+            )
+          )
+        ),
+        div(
+          style = paste0(
+            "flex: 1; ",
+            "padding-left: 1em;"
+          ),
+          HTML(x$text)
+        )
+      )
+    }
+  ) |>
+  tagList() |>
+  browsable()
+```
+
+## References {.unnumbered}
+
+::: {#refs}
+:::
