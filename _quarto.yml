@@ -15,9 +15,7 @@ title: >
   Food Establishments in Brazil Using the Locais-Nova Scale
 author: "Daniel Vartanian, Letícia Gonçalves Silva, Camila N. Fernandes, & Mariana A. Giannotti"
 keyword: >
-  Pipelines, rstats, Data Munging, Data Science, Open Data, Open Science,
-  Spatial Data, Reproducible Workflows, CNPJ, Annual Social Information
-  Report, RAIS, Brazilian Ministry of Labor and Employment, MTE,
+  Pipelines, rstats, Data Science, Spatial Data, Reproducible Workflows, CNPJ,
   Brazilian Federal Revenue Service, RFB, Locais-Nova, Food Establishments,
   Location-Allocation, Maximal Coverage Location-Allocation, Brazil
 date: today
