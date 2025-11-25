@@ -94,6 +94,7 @@ library(arrow)
 library(brandr)
 library(beepr)
 library(censobr)
+library(cli)
 library(dplyr)
 library(fs)
 library(ggplot2)
@@ -573,7 +574,7 @@ travel_time_stats <-
 allocation <-
   census_raster_data |>
   allocation(
-    bb_area = shape,
+    bb_area = allocation_shape,
     facilities = allocation_data,
     traveltime = travel_time_data,
     weights = NULL,
@@ -601,7 +602,6 @@ allocation |> allocation_plot(bb_area = shape)
 ### Compute Location-Allocation (Discrete Approach)
 
 ```{r}
-#| eval: false
 #| label: Compute Location-Allocation (Discrete Approach)
 #| warning: false
 
@@ -609,29 +609,46 @@ allocation <-
   census_raster_data |>
   allocation_discrete(
     bb_area = shape,
-    candidate = shape, # |> st_sample(20),
+    candidate = shape |> st_sample(30),
     facilities = allocation_data,
-    n_fac = 30,
-    n_samples = 1000,
-    traveltime = traveltime,
+    n_fac = 5,
+    n_samples = 100,
+    traveltime = travel_time_data,
     weights = NULL,
     objectiveminutes = objective_minutes,
     objectiveshare = 0.95,
     approach = "norm",
     exp_demand = 1,
     exp_weights = 1,
-    par = TRUE
+    par = FALSE
   )
+```
+
+```{r}
+{
+  cli_alert_info(
+    paste0(
+      "Coverage: ",
+      "{.strong {col_red(round((1 - allocation$unmet_demand) * 100, 5))}}%"
+    )
+  )
+
+  cli_alert_info(
+    paste0(
+      "Unmet demand: ",
+      "{.strong {col_red(round(allocation$unmet_demand * 100, 5))}}%"
+    )
+  )
+}
 ```
 
 ### Plot Location-Allocation (Discrete Approach)
 
 ::: {.callout-note}
-This plot illustrates the amount and optimal locations for food establishments within the selected Locais-Nova scale group, considering the amount of facilities, objective travel time, and population coverage.
+This plot illustrates the amount and optimal locations for food establishments within the selected Locais-Nova scale group, considering the **amount of facilities**, objective travel time, and population coverage.
 :::
 
 ```{r}
-#| eval: false
 #| warning: false
 
 allocation |> allocation_plot_discrete(bb_area = shape)

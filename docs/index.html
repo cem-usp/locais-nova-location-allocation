@@ -4,7 +4,7 @@
 <meta name="generator" content="quarto-1.8.24">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 <meta name="author" content="Daniel Vartanian, Letícia Gonçalves Silva, Camila N. Fernandes, &amp; Mariana A. Giannotti">
-<meta name="dcterms.date" content="2025-11-21">
+<meta name="dcterms.date" content="2025-11-25">
 <title>A Reproducible Pipeline for Maximal Coverage Location-Allocation of Food Establishments in Brazil Using the Locais-Nova Scale</title>
 <style>
 code{white-space: pre-wrap;}
@@ -121,10 +121,10 @@ div.csl-indent {
 <meta name="citation_title" content="A Reproducible Pipeline for Maximal Coverage Location-Allocation of Food Establishments in Brazil Using the Locais-Nova Scale
 ">
 <meta name="citation_author" content="Daniel Vartanian, Letícia Gonçalves Silva, Camila N. Fernandes, &amp;amp; Mariana A. Giannotti">
-<meta name="citation_publication_date" content="2025-11-21">
-<meta name="citation_cover_date" content="2025-11-21">
+<meta name="citation_publication_date" content="2025-11-25">
+<meta name="citation_cover_date" content="2025-11-25">
 <meta name="citation_year" content="2025">
-<meta name="citation_online_date" content="2025-11-21">
+<meta name="citation_online_date" content="2025-11-25">
 <meta name="citation_fulltext_html_url" content="https://cem-usp.github.io/locais-nova-location-allocation/">
 <meta name="citation_language" content="en">
 <meta name="citation_reference" content="citation_title=Quarto;,citation_abstract=Quarto is an open-source scientific and technical publishing system built on Pandoc.;,citation_author=J. J. Allaire;,citation_author=Charles Teague;,citation_author=Yihui Xie;,citation_author=Christophe Dervieux;,citation_fulltext_html_url=https://quarto.org;,citation_doi=10.5281/ZENODO.5960048;,citation_publisher=Zenodo;">
@@ -258,7 +258,7 @@ div.csl-indent {
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">November 21, 2025</p>
+      <p class="date">November 25, 2025</p>
     </div>
   </div>
   
@@ -346,6 +346,7 @@ Figure&nbsp;1: Data science workflow created by Wickham, Çetinkaya-Runde, and G
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://danielvartan.github.io/brandr/">brandr</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/rasmusab/beepr">beepr</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/ipeaGIT/censobr">censobr</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://cli.r-lib.org">cli</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://dplyr.tidyverse.org">dplyr</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://fs.r-lib.org">fs</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org">ggplot2</a></span><span class="op">)</span></span>
@@ -897,7 +898,7 @@ Figure&nbsp;1: Data science workflow created by Wickham, Çetinkaya-Runde, and G
 <span>    breaks <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">5</span>, <span class="fl">10</span>, <span class="fl">15</span>, <span class="fl">30</span><span class="op">)</span>,</span>
 <span>    objectiveminutes <span class="op">=</span> <span class="va">objective_minutes</span></span>
 <span>  <span class="op">)</span></span>
-<span><span class="co">#&gt; ℹ 87.51% of coverage within the 15 minutes threshold.</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span><span class="co">#&gt; ℹ 87.51001% of coverage within the 15 minutes threshold.</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure"><p><a href="index_files/figure-html/Travel Time Stats-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-6"><img src="index_files/figure-html/Travel Time Stats-1.png" class="img-fluid figure-img" width="672"></a></p>
@@ -910,7 +911,7 @@ Figure&nbsp;1: Data science workflow created by Wickham, Çetinkaya-Runde, and G
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb38"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">allocation</span> <span class="op">&lt;-</span></span>
 <span>  <span class="va">census_raster_data</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://giacfalk.github.io/locationallocation/reference/allocation.html">allocation</a></span><span class="op">(</span></span>
-<span>    bb_area <span class="op">=</span> <span class="va">shape</span>,</span>
+<span>    bb_area <span class="op">=</span> <span class="va">allocation_shape</span>,</span>
 <span>    facilities <span class="op">=</span> <span class="va">allocation_data</span>,</span>
 <span>    traveltime <span class="op">=</span> <span class="va">travel_time_data</span>,</span>
 <span>    weights <span class="op">=</span> <span class="cn">NULL</span>,</span>
@@ -920,17 +921,7 @@ Figure&nbsp;1: Data science workflow created by Wickham, Çetinkaya-Runde, and G
 <span>    approach <span class="op">=</span> <span class="st">"norm"</span>,</span>
 <span>    exp_demand <span class="op">=</span> <span class="fl">1</span>,</span>
 <span>    exp_weights <span class="op">=</span> <span class="fl">1</span></span>
-<span>  <span class="op">)</span></span>
-<span><span class="co">#&gt; [1] "Fraction of unmet demand:  12.1534437843047 %"</span></span>
-<span><span class="co">#&gt; [1] "Fraction of unmet demand:  11.2847696998063 %"</span></span>
-<span><span class="co">#&gt; [1] "Fraction of unmet demand:  11.0585620628387 %"</span></span>
-<span><span class="co">#&gt; [1] "Fraction of unmet demand:  9.94214807418508 %"</span></span>
-<span><span class="co">#&gt; [1] "Fraction of unmet demand:  7.94158021807322 %"</span></span>
-<span><span class="co">#&gt; [1] "Fraction of unmet demand:  7.91344091967339 %"</span></span>
-<span><span class="co">#&gt; [1] "Fraction of unmet demand:  7.91344091967339 %"</span></span>
-<span><span class="co">#&gt; [1] "Fraction of unmet demand:  6.47803566149058 %"</span></span>
-<span><span class="co">#&gt; [1] "Fraction of unmet demand:  6.47803566149058 %"</span></span>
-<span><span class="co">#&gt; [1] "Fraction of unmet demand:  2.99186020092346 %"</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span>  <span class="op">)</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </section><section id="plot-location-allocation-continuous-approach" class="level3"><h3 class="anchored" data-anchor-id="plot-location-allocation-continuous-approach">Plot Location-Allocation (Continuous Approach)</h3>
 <div class="callout callout-style-simple callout-note">
@@ -958,19 +949,36 @@ Figure&nbsp;1: Data science workflow created by Wickham, Çetinkaya-Runde, and G
 <span>  <span class="va">census_raster_data</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://giacfalk.github.io/locationallocation/reference/allocation_discrete.html">allocation_discrete</a></span><span class="op">(</span></span>
 <span>    bb_area <span class="op">=</span> <span class="va">shape</span>,</span>
-<span>    candidate <span class="op">=</span> <span class="va">shape</span>, <span class="co"># |&gt; st_sample(20),</span></span>
+<span>    candidate <span class="op">=</span> <span class="va">shape</span> <span class="op">|&gt;</span> <span class="fu"><a href="https://r-spatial.github.io/sf/reference/st_sample.html">st_sample</a></span><span class="op">(</span><span class="fl">30</span><span class="op">)</span>,</span>
 <span>    facilities <span class="op">=</span> <span class="va">allocation_data</span>,</span>
-<span>    n_fac <span class="op">=</span> <span class="fl">30</span>,</span>
-<span>    n_samples <span class="op">=</span> <span class="fl">1000</span>,</span>
-<span>    traveltime <span class="op">=</span> <span class="va">traveltime</span>,</span>
+<span>    n_fac <span class="op">=</span> <span class="fl">5</span>,</span>
+<span>    n_samples <span class="op">=</span> <span class="fl">100</span>,</span>
+<span>    traveltime <span class="op">=</span> <span class="va">travel_time_data</span>,</span>
 <span>    weights <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>    objectiveminutes <span class="op">=</span> <span class="va">objective_minutes</span>,</span>
 <span>    objectiveshare <span class="op">=</span> <span class="fl">0.95</span>,</span>
 <span>    approach <span class="op">=</span> <span class="st">"norm"</span>,</span>
 <span>    exp_demand <span class="op">=</span> <span class="fl">1</span>,</span>
 <span>    exp_weights <span class="op">=</span> <span class="fl">1</span>,</span>
-<span>    par <span class="op">=</span> <span class="cn">TRUE</span></span>
+<span>    par <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span>  <span class="op">)</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb41"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu"><a href="https://cli.r-lib.org/reference/cli_alert.html">cli_alert_info</a></span><span class="op">(</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/paste.html">paste0</a></span><span class="op">(</span></span>
+<span>    <span class="st">"Coverage: "</span>,</span>
+<span>    <span class="st">"{.strong {col_red(round((1 - allocation$unmet_demand) * 100, 5))}}%"</span></span>
+<span>  <span class="op">)</span></span>
+<span><span class="op">)</span></span>
+<span><span class="co">#&gt; ℹ Coverage: 87.98753%</span></span>
+<span></span>
+<span><span class="fu"><a href="https://cli.r-lib.org/reference/cli_alert.html">cli_alert_info</a></span><span class="op">(</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/paste.html">paste0</a></span><span class="op">(</span></span>
+<span>    <span class="st">"Unmet demand: "</span>,</span>
+<span>    <span class="st">"{.strong {col_red(round(allocation$unmet_demand * 100, 5))}}%"</span></span>
+<span>  <span class="op">)</span></span>
+<span><span class="op">)</span></span>
+<span><span class="co">#&gt; ℹ Unmet demand: 12.01247%</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </section><section id="plot-location-allocation-discrete-approach" class="level3"><h3 class="anchored" data-anchor-id="plot-location-allocation-discrete-approach">Plot Location-Allocation (Discrete Approach)</h3>
 <div class="callout callout-style-simple callout-note">
@@ -979,12 +987,18 @@ Figure&nbsp;1: Data science workflow created by Wickham, Çetinkaya-Runde, and G
 <i class="callout-icon"></i>
 </div>
 <div class="callout-body-container">
-<p>This plot illustrates the amount and optimal locations for food establishments within the selected Locais-Nova scale group, considering the amount of facilities, objective travel time, and population coverage.</p>
+<p>This plot illustrates the amount and optimal locations for food establishments within the selected Locais-Nova scale group, considering the <strong>amount of facilities</strong>, objective travel time, and population coverage.</p>
 </div>
 </div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb41"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">allocation</span> <span class="op">|&gt;</span> <span class="fu"><a href="https://giacfalk.github.io/locationallocation/reference/allocation_plot_discrete.html">allocation_plot_discrete</a></span><span class="op">(</span>bb_area <span class="op">=</span> <span class="va">shape</span><span class="op">)</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb42"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">allocation</span> <span class="op">|&gt;</span> <span class="fu"><a href="https://giacfalk.github.io/locationallocation/reference/allocation_plot_discrete.html">allocation_plot_discrete</a></span><span class="op">(</span>bb_area <span class="op">=</span> <span class="va">shape</span><span class="op">)</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure"><p><a href="index_files/figure-html/unnamed-chunk-31-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-8"><img src="index_files/figure-html/unnamed-chunk-31-1.png" class="img-fluid figure-img" width="672"></a></p>
+</figure>
+</div>
+</div>
 </div>
 </section></section><section id="citation" class="level2"><h2 class="anchored" data-anchor-id="citation">Citation</h2>
 <div class="callout callout-style-simple callout-important">
@@ -1000,15 +1014,15 @@ Figure&nbsp;1: Data science workflow created by Wickham, Çetinkaya-Runde, and G
 <p>To cite this work, please use the following format:</p>
 <p>Vartanian, D., Silva, L. G., Fernandes, C. N., &amp; Giannotti, M. A. (2025). <em>A reproducible pipeline for maximal coverage location-allocation of food establishments in Brazil using the Locais-Nova scale</em> [Computer software]. Center for Metropolitan Studies of the University of São Paulo. <a href="https://cem-usp.github.io/locais-nova-location-allocation" class="uri">https://cem-usp.github.io/locais-nova-location-allocation</a></p>
 <p>A BibLaTeX entry for LaTeX users is:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb42"><pre class="sourceCode latex code-with-copy"><code class="sourceCode latex"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a>@software{silva2025,</span>
-<span id="cb42-2"><a href="#cb42-2" aria-hidden="true" tabindex="-1"></a>  title = {A reproducible pipeline for maximal coverage location-allocation of food establishments in Brazil using the Locais-Nova scale},</span>
-<span id="cb42-3"><a href="#cb42-3" aria-hidden="true" tabindex="-1"></a>  author = {{Daniel Vartanian} and {Letícia Gonçalves Silva} and {Camila Nastari Fernandes} and {Mariana Abrantes Giannotti}},</span>
-<span id="cb42-4"><a href="#cb42-4" aria-hidden="true" tabindex="-1"></a>  year = {2025},</span>
-<span id="cb42-5"><a href="#cb42-5" aria-hidden="true" tabindex="-1"></a>  address = {São Paulo},</span>
-<span id="cb42-6"><a href="#cb42-6" aria-hidden="true" tabindex="-1"></a>  institution = {Center for Metropolitan Studies of the University of São Paulo},</span>
-<span id="cb42-7"><a href="#cb42-7" aria-hidden="true" tabindex="-1"></a>  langid = {en},</span>
-<span id="cb42-8"><a href="#cb42-8" aria-hidden="true" tabindex="-1"></a>  url = {https://cem-usp.github.io/locais-nova-location-allocation}</span>
-<span id="cb42-9"><a href="#cb42-9" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb43"><pre class="sourceCode latex code-with-copy"><code class="sourceCode latex"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a>@software{silva2025,</span>
+<span id="cb43-2"><a href="#cb43-2" aria-hidden="true" tabindex="-1"></a>  title = {A reproducible pipeline for maximal coverage location-allocation of food establishments in Brazil using the Locais-Nova scale},</span>
+<span id="cb43-3"><a href="#cb43-3" aria-hidden="true" tabindex="-1"></a>  author = {{Daniel Vartanian} and {Letícia Gonçalves Silva} and {Camila Nastari Fernandes} and {Mariana Abrantes Giannotti}},</span>
+<span id="cb43-4"><a href="#cb43-4" aria-hidden="true" tabindex="-1"></a>  year = {2025},</span>
+<span id="cb43-5"><a href="#cb43-5" aria-hidden="true" tabindex="-1"></a>  address = {São Paulo},</span>
+<span id="cb43-6"><a href="#cb43-6" aria-hidden="true" tabindex="-1"></a>  institution = {Center for Metropolitan Studies of the University of São Paulo},</span>
+<span id="cb43-7"><a href="#cb43-7" aria-hidden="true" tabindex="-1"></a>  langid = {en},</span>
+<span id="cb43-8"><a href="#cb43-8" aria-hidden="true" tabindex="-1"></a>  url = {https://cem-usp.github.io/locais-nova-location-allocation}</span>
+<span id="cb43-9"><a href="#cb43-9" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </section><section id="license" class="level2"><h2 class="anchored" data-anchor-id="license">License</h2>
 <div style="text-align: left;">
 <p><a href="https://www.gnu.org/licenses/gpl-3.0"><img src="https://img.shields.io/badge/license-GPLv3-bd0000.svg" class="img-fluid" alt="License: GPLv3"></a> <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/"><img src="https://img.shields.io/badge/license-CC_BY--NC--SA_4.0-lightgrey.svg" class="img-fluid" alt="License: CC BY-NC-SA 4.0"></a></p>
