@@ -9,6 +9,7 @@ ttf/* linguist-documentation
 .vscode/* linguist-generated
 data/* linguist-generated
 data-raw/* linguist-generated
+*.bib linguist-generated
 
 _ssh/* linguist-vendored
 csl/* linguist-vendored
