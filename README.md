@@ -8,7 +8,7 @@
 
 ## Overview
 
-This repository provides a reproducible pipeline for calculating the Maximal Coverage [Location-Allocation](https://en.wikipedia.org/wiki/Location-allocation) to identify optimal locations for one or more facilities, specifically targeting food establishments, to maximize accessibility and coverage within the defined area.
+This repository provides a reproducible pipeline for calculating the Maximal Coverage [Location-Allocation](https://en.wikipedia.org/wiki/Location-allocation) to identify optimal sites for fresh and/or healthy food establishments in favelas (informal settlements in Brazil) and urban communities. The goal is to improve accessibility and maximize coverage within the study region.
 
 The report is available [here](https://cem-usp.github.io/locais-nova-location-allocation/).
 
@@ -18,7 +18,7 @@ The report is available [here](https://cem-usp.github.io/locais-nova-location-al
 
 The processed data are available in [`csv`](https://en.wikipedia.org/wiki/Comma-separated_values), [`rds`](https://rdrr.io/r/base/readRDS.html) and [`parquet`](https://en.wikipedia.org/wiki/Apache_Parquet) formats through dedicated repositories on the Open Science Framework ([OSF](https://osf.io/)). A metadata file is included alongside the validated datasets.
 
-Only authorized personnel can access the processed files. They are protected with [RSA](https://en.wikipedia.org/wiki/RSA_cryptosystem) 4096-bit encryption ([OpenSSL](https://www.openssl.org/)) and a 32-byte password to ensure data security.
+Only authorized personnel can access the pipeline **raw** and **processed** files. They are protected with [RSA](https://en.wikipedia.org/wiki/RSA_cryptosystem) 4096-bit encryption ([OpenSSL](https://www.openssl.org/)) and a 32-byte password to ensure data security.
 
 ## Usage
 

@@ -15,13 +15,19 @@ source(here("R", "_setup.R"))
 
 ## Overview
 
-This report provides a reproducible pipeline for calculating the Maximal Coverage [Location-Allocation](https://en.wikipedia.org/wiki/Location-allocation) to identify optimal locations for one or more facilities, specifically targeting food establishments, to maximize accessibility and coverage within the defined area.
+This report provides a reproducible pipeline for calculating the Maximal Coverage [Location-Allocation](https://en.wikipedia.org/wiki/Location-allocation) to identify optimal sites for fresh and/or healthy food establishments in favelas (informal settlements in Brazil) and urban communities. The goal is to improve accessibility and maximize coverage within the study region.
 
 For instructions on how to run the pipeline, see the repository [README](https://github.com/cem-usp/locais-nova-location-allocation/blob/main/README.md).
 
+::: {.callout-warning}
+This pipeline is still under development and may not be fully functional.
+
+This warning will be removed once the pipeline is complete.
+:::
+
 ## Problem
 
-<!-- Add a brief description of the problem being addressed. -->
+The [AcessoSAN](https://doi.org/10.17605/OSF.IO/ZE6WT) project aims to develop methods for measuring and analyzing inequities in access to fresh and/or healthy food in favelas and urban communities. Achieving this requires mapping the current food environment and identifying optimal locations for new food establishments to improve accessibility. This pipeline addresses this need by providing a systematic approach to [location-allocation](https://en.wikipedia.org/wiki/Location-allocation) analysis using the Locais-Nova scale groups [@silva2025].
 
 ## Data Availability
 
@@ -29,7 +35,7 @@ For instructions on how to run the pipeline, see the repository [README](https:/
 
 The processed data are available in [`csv`](https://en.wikipedia.org/wiki/Comma-separated_values), [`rds`](https://rdrr.io/r/base/readRDS.html) and [`parquet`](https://en.wikipedia.org/wiki/Apache_Parquet) formats through dedicated repositories on the Open Science Framework ([OSF](https://osf.io/)). A metadata file is included alongside the validated datasets.
 
-Only authorized personnel can access the processed files. They are protected with [RSA](https://en.wikipedia.org/wiki/RSA_cryptosystem) 4096-bit encryption ([OpenSSL](https://www.openssl.org/)) and a 32-byte password to ensure data security.
+Only authorized personnel can access the pipeline **raw** and **processed** files. They are protected with [RSA](https://en.wikipedia.org/wiki/RSA_cryptosystem) 4096-bit encryption ([OpenSSL](https://www.openssl.org/)) and a 32-byte password to ensure data security.
 
 ## Methods
 
@@ -38,21 +44,21 @@ Only authorized personnel can access the processed files. They are protected wit
 The data used in this report come from the following sources:
 
 - Brazilian Federal Revenue Service ([RFB](https://www.gov.br/receitafederal/))
-  - Data on legal entities from the National Register of Legal Entities ([CNPJ](https://en.wikipedia.org/wiki/CNPJ)) [database](https://dados.gov.br/dados/conjuntos-dados/cadastro-nacional-da-pessoa-juridica---cnpj), used for company identification [@brasil].
-  - Data on [Brazilian agencies and municipalities](https://dados.gov.br/dados/conjuntos-dados/tabela-de-rgos-e-municpios) (_Tabela de Órgãos e Municípios_, TOM) [@brasila].
+  - Legal entities data from the National Register of Legal Entities ([CNPJ](https://en.wikipedia.org/wiki/CNPJ)) [database](https://dados.gov.br/dados/conjuntos-dados/cadastro-nacional-da-pessoa-juridica---cnpj), used for company identification [@brasil].
+  - Codes of Brazilian agencies and municipalities (_Tabela de Órgãos e Municípios_, [TOM]((https://dados.gov.br/dados/conjuntos-dados/tabela-de-rgos-e-municpios))) [@brasila], used to identify municipalities in the CNPJ database.
 - Brazilian Institute of Geography and Statistics ([IBGE](https://www.ibge.gov.br/))
-  - Municipality data via the [`geobr`](https://ipeagit.github.io/geobr/) R package [@pereirab].
-  - Municipality and census tract shapes via the [`geobr`](https://ipeagit.github.io/geobr/) R package [@pereirab].
-  - Census tract population data via the [`censobr`](https://ipeagit.github.io/censobr/) R package [@pereirab].
-  - Open spatial datasets of Brazilian addresses from the National Address Register for Statistical Purposes ([CNEFE](https://www.ibge.gov.br/estatisticas/sociais/populacao/38734-cadastro-nacional-de-enderecos-para-fins-estatisticos.html)), used for geocoding via the [`geocodebr`](https://ipeagit.github.io/geocodebr/) R package [@pereiraa].
+  - Codes and descriptions from the National Classification of Economic Activities ([CNAE](https://concla.ibge.gov.br/concla.html)) [@ibgeu], used to match establishments to the Locais-Nova groups.
+  - Tract shapes from the [Brazilian 2022 Census](https://www.ibge.gov.br/en/statistics/social/labor/22836-2022-census-3.html) via the [`geobr`](https://ipeagit.github.io/geobr/) R package [@pereirab], used to calculate population density.
+  - Tract population data from the [Brazilian 2022 Census](https://www.ibge.gov.br/en/statistics/social/labor/22836-2022-census-3.html) via the [`censobr`](https://ipeagit.github.io/censobr/) R package [@pereirab], used to calculate population density.
+  - Open spatial datasets of Brazilian addresses from the National Address Register for Statistical Purposes ([CNEFE](https://www.ibge.gov.br/estatisticas/sociais/populacao/38734-cadastro-nacional-de-enderecos-para-fins-estatisticos.html)), used for geocoding the establishments via the [`geocodebr`](https://ipeagit.github.io/geocodebr/) R package [@pereiraa].
 - Center for Metropolitan Studies ([CEM](https://centrodametropole.fflch.usp.br/))
-  - Lookup table providing the classification linking the establishments [CNAEs](https://www.gov.br/receitafederal/pt-br/assuntos/orientacao-tributaria/cadastros/cnpj/classificacao-nacional-de-atividades-economicas-2013-cnae) (National Classification of Economic Activities) codes to the [Locais-Nova](https://doi.org/10.1590/S2237-96222025v34.20240361.en) groups (Fernandes & Giannotti, 2025). This data will remain private until further notice.
+  - Lookup table providing the classification linking the establishments [CNAEs](https://www.gov.br/receitafederal/pt-br/assuntos/orientacao-tributaria/cadastros/cnpj/classificacao-nacional-de-atividades-economicas-2013-cnae) codes to the [Locais-Nova](https://doi.org/10.1590/S2237-96222025v34.20240361.en) groups (Fernandes & Giannotti, 2025). This data will remain private until further notice.
 - Malaria Atlas Project ([MAP](https://malariaatlas.org/))
-  - Data on [spatial friction](https://en.wikipedia.org/wiki/Friction_of_distance) based on the *Global Walking Only Friction Surface* dataset [@map2019a], used to calculate travel times.
+  - [Spatial friction](https://en.wikipedia.org/wiki/Friction_of_distance) data based on the *Global Walking Only Friction Surface* dataset [@map2019a], used to calculate travel times.
 - OpenStreetMap ([OSM](https://www.openstreetmap.org/))
-  - Data on [road and footpaths](https://wiki.openstreetmap.org/wiki/Map_features#Highway) [@openstreetmap], used to calculate travel times.
+  - [Road and footpaths](https://wiki.openstreetmap.org/wiki/Map_features#Highway) spatial data [@openstreetmap], used to calculate travel times.
 
-The dataset related to the Brazilian Federal Revenue Service ([RFB](https://www.gov.br/receitafederal/)) used in this report was processed by Vartanian et al. (-@vartanian2025z) and has its own dedicated pipeline, which can be accessed at: <https://cem-usp.github.io/locais-nova-rfb-geocoding/>.
+The dataset related to the Brazilian Federal Revenue Service ([RFB](https://www.gov.br/receitafederal/)) used in this report was processed by Vartanian et al. [-@vartanian2025z] and has its own dedicated pipeline, which can be accessed at: <https://cem-usp.github.io/locais-nova-rfb-geocoding>
 
 ### Data Munging
 
@@ -70,7 +76,7 @@ Data science workflow created by Wickham, Çetinkaya-Runde, and Grolemund.
 
 ### Code Style
 
-The Tidyverse [code style guide](https://style.tidyverse.org/) [@wickhamb] and [design principles](https://design.tidyverse.org/) [@wickhamc] were followed to ensure consistency and enhance readability.
+The Tidyverse [Tidy Tools Manifesto](https://tidyverse.tidyverse.org/articles/manifesto.html) [@wickham2023c], [code style guide](https://style.tidyverse.org/) [@wickhamb] and [design principles](https://design.tidyverse.org/) [@wickhamc] were followed to ensure consistency and enhance readability.
 
 ### Reproducibility
 
@@ -95,18 +101,21 @@ library(brandr)
 library(beepr)
 library(censobr)
 library(cli)
+library(curl)
 library(dplyr)
 library(fs)
 library(ggplot2)
 library(geobr)
 library(here)
 library(htmltools)
+library(leaflet)
 # install.packages("remotes")
 # remotes::install_github("danielvartan/locationallocation")
 library(locationallocation)
 # remotes::install_github("danielvartan/lockr")
 library(lockr) # github.com/danielvartan/lockr
 library(magrittr)
+library(nngeo)
 # remotes::install_github("danielvartan/orbis")
 library(orbis) # github.com/danielvartan/orbis
 library(osfr)
@@ -116,6 +125,8 @@ library(sf)
 library(stars)
 library(stringr)
 library(tidyr)
+library(readxl)
+library(zip)
 ```
 
 ### Set Keys
@@ -160,7 +171,7 @@ set.seed(2025)
 ```
 
 ::: {.callout-note}
-The `year` variable is related to the year of the [RFB](https://www.gov.br/receitafederal/) dataset.
+The `year` variable is related to the year of the [RFB](https://www.gov.br/receitafederal/) dataset. At the moment, only the 2025 dataset is available.
 :::
 
 ```{r}
@@ -168,7 +179,9 @@ year <- 2025
 ```
 
 ::: {.callout-note}
-This pipeline utilizes the Locais-Nova scale groups [@silva2025] to classify food establishments. The `G0` group is a distinct subset comprising establishments from the `G1-G2` group that are not simultaneously classified under `G3` or `G4`.
+The `locais_nova_group` variable defines the Locais-Nova scale group [@silva2025]to be analyzed. This pipeline utilizes the Locais-Nova scale groups to classify food establishments.
+
+The `G0` group is a distinct subset comprising establishments from the `G1-G2` group that are not simultaneously classified under `G3` or `G4`.
 :::
 
 ```{r}
@@ -184,19 +197,24 @@ objective_minutes <- 15
 ```
 
 ::: {.callout-note}
-Select only **one** municipality at a time by uncommenting the corresponding IBGE code.
+The `favela` variable specifies the IBGE code of the favela to be analyzed. Select only **one** for analysis by uncommenting the corresponding IBGE code.
 :::
 
 ```{r}
-municipality <- c( # IBGE Codes
-  # 1721000 # Palmas (2.227,329 km²)
-  2507507 # João Pessoa (210,044 km²)
-  # 3106200 # Belo Horizonte (331,354 km²)
-  # 3550308 # São Paulo (1.521,202 km²)
-  # 4314902 # Porto Alegre (495,977 km²)
-  # 5208707 # Goiânia (729,296 km²)
-  # 5300108 # Brasília (5.760,783 km²)
+favela <- c(
+  # 35503080012 # Heliópolis (São Paulo-SP)
+  35503080492 # Paraisópolis (São Paulo-SP)
+  # 35503080435 # Nova Jaguaré (São Paulo-SP)
+  # 35503081093 # Recanto do Paraíso (São Paulo-SP)
+  # 35503080376 # Jardim Iporanga / Esmeralda (São Paulo-SP)
 )
+```
+
+```{r}
+municipality_code <-
+  favela |>
+  str_sub(1, 7) |>
+  as.integer()
 ```
 
 ## Download RFB Data
@@ -246,24 +264,53 @@ rfb_file |>
   )
 ```
 
-## Download and Import Municipality Shape
+## Download and Import IBGE CNAE Data
+
+### Download Data
 
 ```{r}
-#| label: Download and Import Municipality Shape
-#| output: false
+#| eval: false
+#| label: Download and Import IBGE CNAE Data
 
-shape <-
-  municipality |>
-  read_municipality(
-    year = closest_geobr_year(year, verbose = FALSE),
-    showProgress = FALSE
-  ) |>
-  dplyr::select(code_muni, geom) |>
-  rename(municipality_code = code_muni, geometry = geom)
+cnae_file <-
+  file.path(
+    "https:/",
+    "concla.ibge.gov.br/images/concla/documentacao",
+    "CNAE_Subclasses_2_3_Estrutura_Detalhada.xlsx"
+) |>
+  curl_download(
+    here(data_dir, "CNAE_Subclasses_2_3_Estrutura_Detalhada.xlsx")
+  )
 ```
 
 ```{r}
-shape
+#| include: false
+
+cnae_file <- here(data_dir, "CNAE_Subclasses_2_3_Estrutura_Detalhada.xlsx")
+```
+
+### Import Data
+
+```{r}
+cnae_data <-
+  cnae_file |>
+  read_xlsx(
+    sheet = "Estrutura Det. CNAE Subclass2.3",
+    range = "E5:F2401",
+    col_names = c("cnae", "description")
+  ) |>
+  drop_na(cnae) |>
+  mutate(
+    cnae =
+      cnae |>
+      str_extract_all("\\d") |>
+      lapply(paste, collapse = "") |>
+      unlist()
+  )
+```
+
+```{r}
+cnae_data |> glimpse()
 ```
 
 ## Download and Import Census Tract Population Data
@@ -302,7 +349,7 @@ census_population_data |> glimpse()
 
 census_tract_data <-
   read_census_tract(
-    code_tract = municipality,
+    code_tract = municipality_code,
     year = 2022, # Last available year
     simplified = TRUE,
     showProgress = TRUE,
@@ -314,12 +361,63 @@ census_tract_data <-
 census_tract_data |> glimpse()
 ```
 
+## Explore Favela Data
+
+### Filter Census Population Data
+
+```{r}
+favela_data <-
+  census_population_data |>
+  filter(
+    code_muni == .env$municipality_code,
+    !is.na(code_favela)
+  ) |>
+  collect() |>
+  as_tibble()
+```
+
+### Explore Data
+
+```{r}
+favela_data |> glimpse()
+```
+
+```{r}
+favela_data |>
+  pull(name_favela) |>
+  unique() |>
+  length()
+```
+
+```{r}
+favela_data |>
+  dplyr::select(code_favela, name_favela) |>
+  arrange(name_favela) |>
+  distinct()
+```
+
+```{r}
+#| eval: false
+#| include: false
+
+favela_data |>
+  filter(
+    name_favela |>
+    str_detect(regex("(?i)heliópolis", ignore_case = TRUE))
+  ) |>
+  distinct(code_favela, name_favela) |>
+  print(n = Inf)
+```
+
 ## Filter and Join Census Data
 
 ```{r}
 census_data <-
   census_population_data |>
-  filter(code_muni == .env$municipality) |>
+  filter(
+    code_muni == .env$municipality_code,
+    code_favela == .env$favela
+  ) |>
   dplyr::select(code_tract, V0001) |>
   rename(population = V0001) |>
   mutate(code_tract = as.numeric(code_tract)) |>
@@ -332,6 +430,28 @@ census_data <-
 
 ```{r}
 census_data |> glimpse()
+```
+
+## Create Favela Shape
+
+```{r}
+shape <-
+  census_data |>
+  st_geometry() |>
+  st_union() |>
+  st_make_valid() |>
+  st_cast("POLYGON") |>
+  nngeo::st_remove_holes() |>
+  st_union(is_coverage = TRUE) |>
+  st_as_sf()
+```
+
+```{r}
+#| eval: false
+#| include: false
+
+census_data |> st_geometry() |> plot()
+shape |> st_geometry() |> plot()
 ```
 
 ## Import Data
@@ -350,11 +470,12 @@ data <-
 data <-
   data |>
   filter(
-    municipality_code == .env$municipality,
+    municipality_code == .env$municipality_code,
     geocodebr_precision %in% c("numero", "numero_aproximado")
   ) |>
   dplyr::select(
     cnpj,
+    cnae,
     longitude,
     latitude,
     locais_nova_g0,
@@ -384,15 +505,42 @@ data <-
       str_replace("_", "-")
   ) |>
   st_join(shape, join = st_within, left = FALSE) |>
-  dplyr::select(cnpj, group, geometry)
+  dplyr::select(cnpj, cnae, group, geometry)
 ```
 
-## Exploratory Analysis
+## Explore the Data
 
 ### Glimpse Data
 
 ```{r}
 data |> glimpse()
+```
+
+### Show Favela on Leaflet
+
+```{r}
+shape_centroid <-
+  shape |>
+  st_centroid() |>
+  st_coordinates() |>
+  as.numeric()
+```
+
+```{r}
+leaflet() |>
+  addTiles() |>
+  setView(
+    lng = shape_centroid[1],
+    lat = shape_centroid[2],
+    zoom = 15
+  ) |>
+  addPolygons(
+    data = shape |> st_transform(st_crs("WGS84")),
+    fillColor = "transparent",
+    color = "blue",
+    weight = 2,
+    opacity = 1
+  )
 ```
 
 ### Plot Establishments
@@ -402,6 +550,9 @@ This plot illustrates the distribution of food establishments categorized by Loc
 :::
 
 ```{r}
+#| fig-width: 9
+#| fig-height: 3
+
 ggplot() +
   geom_sf(
     data = shape,
@@ -429,7 +580,7 @@ ggplot() +
 ### Plot Tract Population
 
 ::: {.callout-note}
-This plot illustrates the population distribution across census tracts within the selected municipality.
+This plot illustrates the population distribution across census tracts within the selected favela.
 :::
 
 ```{r}
@@ -454,16 +605,16 @@ ggplot() +
   )
 ```
 
-## Compute Maximal Coverage Location-Allocation
+## Compute Maximal Coverage Location-Allocation (With Restaurants)
 
 ::: {.callout-warning}
-This process may require substantial computational resources, depending on the area's size and the number of establishments analyzed. Ensure your system has adequate capacity before proceeding.
+The Locais-Nova scale add _restaurants_ ([CNAE](https://www.ibge.gov.br/en/statistics/technical-documents/statistical-lists-and-classifications/17245-national-classification-of-economic-activities.html?=&t=o-que-e) 5611-2/01) as potential establishments for fresh and/or healthy food access. But not all restaurants offer such options (e.g., burger joints, pizza places, etc.). Therefore, results should be interpreted with caution.
 :::
 
 ### Filter Locais-Nova Group
 
 ```{r}
-#| label: Compute Maximal Coverage Location-Allocation
+#| label: Compute Maximal Coverage Location-Allocation (With Restaurants)
 
 allocation_data <-
   data |>
@@ -471,7 +622,38 @@ allocation_data <-
   st_transform(st_crs("WGS84"))
 ```
 
-### Normalize Municipality Shape CRS
+### Check Allocation Data
+
+```{r}
+unique_cnaes <-
+  allocation_data |>
+  pull(cnae) |>
+  unique() |>
+  sort()
+```
+
+```{r}
+cnae_data |>
+  filter(
+    cnae |>
+      magrittr::is_in(
+        unique_cnaes |>
+          str_extract_all("\\d") |>
+          lapply(paste, collapse = "") |>
+          unlist()
+      )
+  )
+```
+
+```{r}
+allocation_data |> glimpse()
+```
+
+```{r}
+allocation_data
+```
+
+### Normalize Favela Shape CRS
 
 ```{r}
 allocation_shape <-
@@ -485,7 +667,11 @@ allocation_shape <-
 This plot illustrates the spatial distribution of food establishments within the selected Locais-Nova scale group.
 :::
 
+#### Plot Establishments
+
 ```{r}
+#| label: Plot Food Establishments (With Restaurants)
+
 ggplot() +
   geom_sf(
     data = shape,
@@ -493,9 +679,9 @@ ggplot() +
     color = "black"
   ) +
   geom_sf(
-    data = data,
+    data = allocation_data,
     color = get_brand_color("blue"),
-    size = 0.01
+    size = 1
   ) +
   coord_sf(crs = "WGS84") +
   scale_color_brand_d() +
@@ -503,10 +689,50 @@ ggplot() +
   labs(x = NULL, y = NULL)
 ```
 
-### Compute Travel Time
+#### Show Establishments on Leaflet
 
 ```{r}
-#| label: Compute Travel Time
+shape_centroid <-
+  shape |>
+  st_centroid() |>
+  st_coordinates() |>
+  as.numeric()
+```
+
+```{r}
+point_coordinates <-
+  allocation_data |>
+  mutate(
+    latitude = st_coordinates(geometry)[, 2],
+    longitude = st_coordinates(geometry)[, 1]
+  ) |>
+  dplyr::select(cnpj, latitude, longitude) |>
+  st_drop_geometry()
+```
+
+```{r}
+leaflet() |>
+  addTiles() |>
+  setView(
+    lng = shape_centroid[1],
+    lat = shape_centroid[2],
+    zoom = 15
+  ) |>
+  addMarkers(
+    lng = point_coordinates$longitude,
+    lat = point_coordinates$latitude,
+    popup = point_coordinates$cnpj
+  )
+```
+
+### Compute Travel Time
+
+::: {.callout-warning}
+This process may require substantial computational resources, depending on the area's size and the number of establishments analyzed. Ensure your system has adequate capacity before proceeding.
+:::
+
+```{r}
+#| label: Compute Travel Time (With Restaurants)
 #| output: false
 
 travel_time_data <-
@@ -515,7 +741,7 @@ travel_time_data <-
     bb_area = allocation_shape,
     dowscaling_model_type = "lm",
     mode = "walk",
-    res_output = 100
+    res_output = 10
   )
 ```
 
@@ -526,7 +752,7 @@ This plot illustrates walking travel times from food establishments within the s
 :::
 
 ```{r}
-#| label: Travel Time Plot
+#| label: Travel Time Plot (With Restaurants)
 
 travel_time_data |>
   traveltime_plot(
@@ -554,7 +780,7 @@ This plot illustrates the cumulative population coverage achieved within the spe
 :::
 
 ```{r}
-#| label: Travel Time Stats
+#| label: Travel Time Stats (With Restaurants)
 
 travel_time_stats <-
   travel_time_data |>
@@ -565,93 +791,186 @@ travel_time_stats <-
   )
 ```
 
-### Compute Location-Allocation (Continuous Approach)
+## Compute Maximal Coverage Location-Allocation (Without Restaurants)
+
+### Filter Allocation Data
 
 ```{r}
-#| label: Compute Location-Allocation (Continuous Approach)
-#| warning: false
+#| label: Compute Maximal Coverage Location-Allocation (Without Restaurants)
 
-allocation <-
-  census_raster_data |>
-  allocation(
+allocation_data <-
+  allocation_data |>
+  filter(!cnae == "5611-2/01") |>
+  st_transform(st_crs("WGS84"))
+```
+
+### Check Allocation Data
+
+```{r}
+unique_cnaes <-
+  allocation_data |>
+  pull(cnae) |>
+  unique() |>
+  sort()
+```
+
+```{r}
+cnae_data |>
+  filter(
+    cnae |>
+      magrittr::is_in(
+        unique_cnaes |>
+          str_extract_all("\\d") |>
+          lapply(paste, collapse = "") |>
+          unlist()
+      )
+  )
+```
+
+```{r}
+allocation_data |> glimpse()
+```
+
+```{r}
+allocation_data
+```
+
+### Normalize Favela Shape CRS
+
+```{r}
+allocation_shape <-
+  shape |>
+  st_transform(st_crs("WGS84"))
+```
+
+### Plot Food Establishments
+
+::: {.callout-note}
+This plot illustrates the spatial distribution of food establishments within the selected Locais-Nova scale group.
+:::
+
+#### Plot Establishments
+
+```{r}
+#| label: Plot Food Establishments (Without Restaurants)
+
+ggplot() +
+  geom_sf(
+    data = shape,
+    fill = "gray90",
+    color = "black"
+  ) +
+  geom_sf(
+    data = allocation_data,
+    color = get_brand_color("blue"),
+    size = 1
+  ) +
+  coord_sf(crs = "WGS84") +
+  scale_color_brand_d() +
+  theme(legend.position = "none") +
+  labs(x = NULL, y = NULL)
+```
+
+#### Show Establishments on Leaflet
+
+```{r}
+shape_centroid <-
+  shape |>
+  st_centroid() |>
+  st_coordinates() |>
+  as.numeric()
+```
+
+```{r}
+point_coordinates <-
+  allocation_data |>
+  mutate(
+    latitude = st_coordinates(geometry)[, 2],
+    longitude = st_coordinates(geometry)[, 1]
+  ) |>
+  dplyr::select(cnpj, latitude, longitude) |>
+  st_drop_geometry()
+```
+
+```{r}
+leaflet() |>
+  addTiles() |>
+  setView(
+    lng = shape_centroid[1],
+    lat = shape_centroid[2],
+    zoom = 15
+  ) |>
+  addMarkers(
+    lng = point_coordinates$longitude,
+    lat = point_coordinates$latitude,
+    popup = point_coordinates$cnpj
+  )
+```
+
+### Compute Travel Time
+
+::: {.callout-warning}
+This process may require substantial computational resources, depending on the area's size and the number of establishments analyzed. Ensure your system has adequate capacity before proceeding.
+:::
+
+```{r}
+#| label: Compute Travel Time (Without Restaurants)
+#| output: false
+
+travel_time_data <-
+  allocation_data |>
+  traveltime(
+    bb_area = allocation_shape,
+    dowscaling_model_type = "lm",
+    mode = "walk",
+    res_output = 10
+  )
+```
+
+### Plot Travel Time
+
+::: {.callout-note}
+This plot illustrates walking travel times to food establishments within the selected Locais-Nova scale group, considering the spatial friction of the area using [surface roughness](https://data.malariaatlas.org/maps?layers=Accessibility:202001_Global_Walking_Only_Friction_Surface&extent=-5374476.139299919,-2804556.46475387,-4931760.0211486025,-2595649.7965012174) along with roads, streets and paths (see the OpenStreetMap [`highway`](https://wiki.openstreetmap.org/wiki/Key:highway) key to learn more). Contour lines represent travel times up to the specified objective minutes.
+:::
+
+```{r}
+#| label: Travel Time Plot (Without Restaurants)
+
+travel_time_data |>
+  traveltime_plot(
     bb_area = allocation_shape,
     facilities = allocation_data,
-    traveltime = travel_time_data,
-    weights = NULL,
-    objectiveminutes = objective_minutes,
-    objectiveshare = 0.95,
-    heur = "max",
-    approach = "norm",
-    exp_demand = 1,
-    exp_weights = 1
+    contour_traveltime = objective_minutes
   )
 ```
 
-### Plot Location-Allocation (Continuous Approach)
+### Rasterize Population Data
 
-::: {.callout-note}
-This plot illustrates the amount and optimal locations for food establishments within the selected Locais-Nova scale group, considering the objective travel time and population coverage.
+```{r}
+census_raster_data <-
+  census_data |>
+  dplyr::select(-tract_code) |>
+  st_transform(st_crs("WGS84")) |>
+  st_rasterize() |>
+  as("Raster")
+```
+
+### Compute Travel Time Stats
+
+::: {.callout-tip}
+You can compare this result with the food deserts and food swamps identified on the [Alimenta Cidades](https://alimentacidades.digital/#desertos) platform.
 :::
 
 ```{r}
-#| warning: false
+#| label: Travel Time Stats (Without Restaurants)
 
-allocation |> allocation_plot(bb_area = shape)
-```
-
-### Compute Location-Allocation (Discrete Approach)
-
-```{r}
-#| label: Compute Location-Allocation (Discrete Approach)
-#| warning: false
-
-allocation <-
-  census_raster_data |>
-  allocation_discrete(
-    bb_area = shape,
-    candidate = shape |> st_sample(30),
-    facilities = allocation_data,
-    n_fac = 5,
-    n_samples = 100,
-    traveltime = travel_time_data,
-    weights = NULL,
-    objectiveminutes = objective_minutes,
-    objectiveshare = 0.95,
-    approach = "norm",
-    exp_demand = 1,
-    exp_weights = 1,
-    par = FALSE
+travel_time_stats <-
+  travel_time_data |>
+  traveltime_stats(
+    demand = census_raster_data,
+    breaks = c(5, 10, 15, 30),
+    objectiveminutes = objective_minutes
   )
-```
-
-```{r}
-{
-  cli_alert_info(
-    paste0(
-      "Coverage: ",
-      "{.strong {col_red(round((1 - allocation$unmet_demand) * 100, 5))}}%"
-    )
-  )
-
-  cli_alert_info(
-    paste0(
-      "Unmet demand: ",
-      "{.strong {col_red(round(allocation$unmet_demand * 100, 5))}}%"
-    )
-  )
-}
-```
-
-### Plot Location-Allocation (Discrete Approach)
-
-::: {.callout-note}
-This plot illustrates the amount and optimal locations for food establishments within the selected Locais-Nova scale group, considering the **amount of facilities**, objective travel time, and population coverage.
-:::
-
-```{r}
-#| warning: false
-
-allocation |> allocation_plot_discrete(bb_area = shape)
 ```
 
 ## Citation
