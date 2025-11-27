@@ -19,15 +19,9 @@ This report provides a reproducible pipeline for calculating the Maximal Coverag
 
 For instructions on how to run the pipeline, see the repository [README](https://github.com/cem-usp/locais-nova-location-allocation/blob/main/README.md).
 
-::: {.callout-warning}
-This pipeline is still under development and may not be fully functional.
-
-This warning will be removed once the pipeline is complete.
-:::
-
 ## Problem
 
-The [AcessoSAN](https://doi.org/10.17605/OSF.IO/ZE6WT) project aims to develop methods for measuring and analyzing inequities in access to fresh and/or healthy food in favelas and urban communities. Achieving this requires mapping the current food environment and identifying optimal locations for new food establishments to improve accessibility. This pipeline addresses this need by providing a systematic approach to [location-allocation](https://en.wikipedia.org/wiki/Location-allocation) analysis using the Locais-Nova scale groups [@silva2025].
+The [AcessoSAN](https://doi.org/10.17605/OSF.IO/ZE6WT) project aims to develop methods for measuring and analyzing inequities in access to fresh and/or healthy food in favelas (informal settlements in Brazil) and other urban communities. Achieving this requires mapping the current food environment and identifying optimal locations for new food establishments to improve accessibility. This pipeline addresses this need by providing a systematic approach to [location-allocation](https://en.wikipedia.org/wiki/Location-allocation) analysis using the Locais-Nova scale groups [@silva2025].
 
 ## Data Availability
 
