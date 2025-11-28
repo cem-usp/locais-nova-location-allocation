@@ -17,14 +17,16 @@ jobs:
       - name: Check out repository code
         uses: actions/checkout@v4
 
-      - name: Install Libraries
+      - name: Update Packages
+        run: sudo apt-get update
+
+      - name: Install Packages
         run: |
-          sudo apt-get update
           sudo apt-get install -y \
-            libcurl4-openssl-dev libssl-dev libxml2-dev \
-            cmake gdal-bin libfontconfig1-dev libfreetype6-dev libgdal-dev \
-            libglpk-dev libjpeg-dev libpng-dev libsecret-1-dev \
-            libudunits2-dev libx11-dev pandoc
+            cmake gdal-bin libcurl4-openssl-dev libfontconfig1-dev \
+            libfreetype6-dev libfribidi-dev libgdal-dev libglpk-dev \
+            libharfbuzz-dev libjpeg-dev libpng-dev libsecret-1-dev \
+            libssl-dev libudunits2-dev libx11-dev libxml2-dev pandoc
 
       - name: Set up Node.js
         uses: actions/setup-node@v6
