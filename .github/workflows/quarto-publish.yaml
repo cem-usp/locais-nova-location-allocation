@@ -3,11 +3,6 @@ on:
     branches: [main, master]
 
 name: quarto-publish.yaml
-author: "Daniel Vartanian"
-
-description: |
-  Action for protected Quarto site deployment to GitHub Pages
-  (Center for Metropolitan Studies (CEM) version).
 
 jobs:
   quarto-publish:
