@@ -41,7 +41,7 @@ jobs:
       - name: Encrypt index
         run: |
           staticrypt index.html \
-            --password  ${{ secrets.DECRYPTION_PASSPHRASE }} --short \
+            --password  ${{ secrets.DECRYPTION_PIN }} --short \
             --remember false \
             --template-color-primary "#014691" \
             --template-color-secondary "#868489" \
