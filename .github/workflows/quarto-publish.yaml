@@ -2,15 +2,22 @@ on:
   push:
     branches: [main, master]
 
-name: quarto-render.yaml
+name: quarto-publish.yaml
+author: "Daniel Vartanian"
+
+description: |
+  Action for protected Quarto site deployment to GitHub Pages
+  (Center for Metropolitan Studies (CEM) version).
 
 jobs:
-  quarto-render:
+  quarto-publish:
     runs-on: ubuntu-latest
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+      LIBARROW_MINIMAL: false
     permissions:
       contents: write
+      pages: write
     steps:
       - name: Check out repository code
         uses: actions/checkout@v4
@@ -18,7 +25,11 @@ jobs:
       - name: Install Libraries
         run: |
           sudo apt-get update
-          sudo apt-get install -y libcurl4-openssl-dev libssl-dev libxml2-dev
+          sudo apt-get install -y \
+            libcurl4-openssl-dev libssl-dev libxml2-dev \
+            cmake gdal-bin libfontconfig1-dev libfreetype6-dev libgdal-dev \
+            libglpk-dev libjpeg-dev libpng-dev libsecret-1-dev \
+            libudunits2-dev libx11-dev pandoc
 
       - name: Set up Node.js
         uses: actions/setup-node@v6
