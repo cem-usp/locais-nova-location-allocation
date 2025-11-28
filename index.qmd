@@ -99,6 +99,7 @@ library(curl)
 library(dplyr)
 library(fs)
 library(ggplot2)
+library(ggspatial)
 library(geobr)
 library(here)
 library(htmltools)
@@ -213,6 +214,10 @@ municipality_code <-
 
 ## Download RFB Data
 
+::: {.callout-note}
+See the [Source of Data](#source-of-data) section for more information.
+:::
+
 ### Download File
 
 ```{r}
@@ -230,7 +235,9 @@ osf_raw_data_files <-
     pattern = "2025-01.rds.lockr",
     n_max = Inf
   )
+```
 
+```{r}
 osf_raw_data_files
 ```
 
@@ -247,6 +254,13 @@ rfb_file <-
 
 ```{r}
 #| eval: false
+#| include: false
+
+rfb_file <- here(data_dir, "2025-01.rds.lockr")
+```
+
+```{r}
+#| eval: false
 #| output: false
 
 rfb_file |>
@@ -259,6 +273,10 @@ rfb_file |>
 ```
 
 ## Download and Import IBGE CNAE Data
+
+::: {.callout-note}
+See the [Source of Data](#source-of-data) section for more information.
+:::
 
 ### Download Data
 
@@ -309,6 +327,11 @@ cnae_data |> glimpse()
 
 ## Download and Import Census Tract Population Data
 
+::: {.callout-note}
+See the [Source of Data](#source-of-data) section for more information.
+:::
+
+
 ```{r}
 #| label: Download and Import Census Tract Population Data
 #| eval: false
@@ -337,6 +360,10 @@ census_population_data |> glimpse()
 ```
 
 ## Download and Import Census Tract Shape Data
+
+::: {.callout-note}
+See the [Source of Data](#source-of-data) section for more information.
+:::
 
 ```{r}
 #| label: Download and Import Census Tract Shape Data
@@ -591,6 +618,19 @@ ggplot() +
   ) +
   scale_fill_viridis_c(option = "plasma") +
   coord_sf(crs = 4326) +
+  annotation_scale(
+    location = "br",
+    style = "tick",
+    height = unit(0.5, "lines")
+  ) +
+  annotation_north_arrow(
+    location = "br",
+    height = unit(2, "lines"),
+    width = unit(2, "lines"),
+    pad_x = unit(0.25, "lines"),
+    pad_y = unit(1.25, "lines"),
+    style = north_arrow_fancy_orienteering
+  ) +
   theme(legend.position = "right") +
   labs(
     x = NULL,
@@ -678,6 +718,19 @@ ggplot() +
     size = 1
   ) +
   coord_sf(crs = "WGS84") +
+  annotation_scale(
+    location = "br",
+    style = "tick",
+    height = unit(0.5, "lines")
+  ) +
+  annotation_north_arrow(
+    location = "br",
+    height = unit(2, "lines"),
+    width = unit(2, "lines"),
+    pad_x = unit(0.25, "lines"),
+    pad_y = unit(1.25, "lines"),
+    style = north_arrow_fancy_orienteering
+  ) +
   scale_color_brand_d() +
   theme(legend.position = "none") +
   labs(x = NULL, y = NULL)
@@ -860,6 +913,20 @@ ggplot() +
     size = 1
   ) +
   coord_sf(crs = "WGS84") +
+  annotation_scale(
+    aes(),
+    location = "br",
+    style = "tick",
+    height = unit(0.5, "lines")
+  ) +
+  annotation_north_arrow(
+    location = "br",
+    height = unit(2, "lines"),
+    width = unit(2, "lines"),
+    pad_x = unit(0.25, "lines"),
+    pad_y = unit(1.25, "lines"),
+    style = north_arrow_fancy_orienteering
+  ) +
   scale_color_brand_d() +
   theme(legend.position = "none") +
   labs(x = NULL, y = NULL)
