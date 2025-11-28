@@ -3,6 +3,7 @@
 .Renviron
 .Rhistory
 .Ruserdata
+.secrets
 *.knit.md
 *.utf8.md
 **/*.quarto_ipynb
@@ -13,4 +14,4 @@
 /cache/
 /data-raw/
 /data/
-.secrets
+# /docs/
