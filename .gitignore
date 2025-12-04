@@ -4,6 +4,7 @@
 .Rhistory
 .Ruserdata
 .secrets
+.staticrypt.json
 *.knit.md
 *.utf8.md
 **/*.quarto_ipynb
@@ -14,4 +15,3 @@
 /cache/
 /data-raw/
 /data/
-# /docs/

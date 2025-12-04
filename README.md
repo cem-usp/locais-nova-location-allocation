@@ -33,6 +33,18 @@ After installing the three dependencies mentioned above and setting all the keys
 3. **Restore the R environment** by running [`renv::restore()`](https://rstudio.github.io/renv/reference/restore.html) in the R console. This will install all required software dependencies.
 4. **Open** `index.qmd` and run the code as described in the report.
 
+## Rendering
+
+The rendering process uses [Quarto](https://quarto.org/) along with [StatiCrypt](https://github.com/robinmoisson/staticrypt) to encrypt the final HTML report with a PIN code. You need to attend all requirements mentioned in the [*Usage*](#usage) section before proceeding.
+
+After installing these two dependencies e configuring the project's PIN code (see the [Keys](#keys) section), run the following command in your terminal from the root directory of the project:
+
+```bash
+quarto render
+```
+
+These will activate the rendering process, which may take some time depending on your machine and internet connection speed. Once completed, the encrypted HTML report will be available in the `docs` folder.
+
 ## Keys
 
 To access the data and run the [Quarto](https://quarto.org/) notebook, you must first obtain authorization to access the project's [OSF](https://osf.io) repositories.
@@ -40,12 +52,14 @@ To access the data and run the [Quarto](https://quarto.org/) notebook, you must 
 Once you have the necessary permissions, create a file named [`.Renviron`](https://bookdown.org/csgillespie/efficientR/set-up.html#:~:text=2.4.6%20The%20.Renviron%20file) in the root directory of the project and add the following environment variables:
 
 - `OSF_PAT`: Your [OSF](https://osf.io/) Personal Access Token ([PAT](https://en.wikipedia.org/wiki/Personal_access_token)). If you don't have one, go to the settings section of your OSF account and create a new token.
+- `ACESSOSAN_PIN`: The PIN used to encrypt reports with [StatiCrypt](https://github.com/robinmoisson/staticrypt).
 - `ACESSOSAN_PASSWORD`: The password for the project's [RSA](https://en.wikipedia.org/wiki/RSA_cryptosystem) private key (32 bytes).
 
 Example (do not use these values):
 
 ```ini
 OSF_PAT=bWHtQBmdeMvZXDv2R4twdNLjmakjLUZr4t72ouAbNjwycGtDzfm3gjz4ChYXwbBaBVJxJR
+ACESSOSAN_PIN=1234
 ACESSOSAN_PASSWORD=MmXN_od_pe*RdHgfKTaKiXdV7KD2qPzW
 ```
 
